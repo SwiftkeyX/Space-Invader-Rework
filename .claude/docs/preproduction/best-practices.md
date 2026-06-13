@@ -14,17 +14,65 @@
 <!--   - A bug was caused by a pattern and must never recur -->
 <!--   - An architectural decision was made that differs from the Unity 6 defaults below -->
 
-*(No project-critical patterns yet — add as you discover them during development.)*
+These rules are **hard constraints**, not suggestions. They override the Unity 6 patterns below where they conflict.
 
-<!-- Example format:
-### [Short rule name]
+### Single singleton
 
-**Rule**: Never use `Time.deltaTime` for parry window timers.
+**Rule**: `GameManager` is the only singleton in the project. Every other system communicates through the events declared in `architecture.md`.
 
-**Why**: `Time.timeScale = 0` is used for hit-stop — it freezes `deltaTime`, silently stalling the timer.
+**Why**: One global owner of run state keeps coupling loose and testable; scattered singletons create hidden cross-system dependencies that break the scene split.
 
-**Instead**: Use `Time.unscaledDeltaTime` or `WaitForSecondsRealtime` for any timer that must survive `timeScale` changes.
--->
+**Instead**: Subscribe to `GameManager` events. Never `Find` / `FindObjectOfType` and never query another system's state directly across tiers.
+
+### The communication contract is frozen
+
+**Rule**: Only the From→To methods in the `architecture.md` "Communication Patterns" table are permitted. Adding a new edge requires updating `architecture.md` first.
+
+**Why**: The architecture doc is the authoritative wiring map. Ad-hoc calls silently rot it and reintroduce the `Find`-chain coupling it exists to prevent.
+
+### Pool everything hot — zero GC in steady state
+
+**Rule**: Bullets, enemies, and particles are pooled. No per-frame `new`, no LINQ in `Update`, no boxing in gameplay hot paths.
+
+**Why**: Budget is 8.3 ms @ 120 fps with zero steady-state GC (`technical-preferences.md`). Bullet-hell density means hundreds of live projectiles; a per-frame allocation spikes the frame and the zero-GC budget is broken.
+
+**Instead**: Pre-warm object pools; acquire/release instead of Instantiate/Destroy during play.
+
+### Scene loads through SceneLoader only
+
+**Rule**: Never call `SceneManager.LoadScene` / `LoadSceneMode.Single` directly, and never use `DontDestroyOnLoad`. Persistent objects live in `Bootstrap.unity`.
+
+**Why**: The Bootstrap / MainMenu / GameLogic / HUD split depends on additive, controlled loading. Direct loads and `DontDestroyOnLoad` break the split and duplicate persistent objects.
+
+### Pause/hit-stop-safe timers
+
+**Rule**: Any gameplay, i-frame, or power-up-duration timer uses `Time.unscaledDeltaTime` / `WaitForSecondsRealtime`.
+
+**Why**: Hit-stop (D6) sets `Time.timeScale = 0`. Scaled time freezes during hit-stop, silently stalling i-frame and power-up timers and causing chain-death or stuck-effect bugs.
+
+### Horizontal-only player movement (invariant)
+
+**Rule**: The player ship moves on the X axis only. Never add a vertical or dodge-dash axis.
+
+**Why**: D1/N1 — horizontal-only is the core "this is still Space Invaders" identity. Free 2-axis movement was explicitly rejected.
+
+### I-frame invariant
+
+**Rule**: A hit that lands during the invulnerability window deals zero damage and costs no life.
+
+**Why**: D2 — i-frames exist to prevent multi-hit chain-deaths in dense bullet patterns. A hit registering during i-frames defeats the mechanic and makes the curve feel unfair.
+
+### Difficulty values live in ScriptableObjects
+
+**Rule**: Per-level HP, threat speed, fire-rate, and pacing values live in `LevelData` ScriptableObjects — never hardcoded in scripts.
+
+**Why**: The Phase 3 difficulty-tuning pass must iterate values without recompiling, and the 6-level curve (D5 / `game-vision.md`) is the primary tuning surface.
+
+### UI is UI Toolkit
+
+**Rule**: HUD, menus, the power-up pick screen, and game-over UI are built with UI Toolkit (`.uxml` + `.uss`), not UGUI Canvas.
+
+**Why**: Project decision — UI Toolkit is the Unity 6 production-ready path and keeps UI markup/style separate from logic. The `ui-programmer` routing in `technical-preferences.md` reflects this.
 
 ---
 
