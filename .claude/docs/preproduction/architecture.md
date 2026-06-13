@@ -19,7 +19,7 @@
 
 | Script | Responsibility | Fires | Listens to | Direct refs permitted |
 |---|---|---|---|---|
-| `GameManager.cs` | Owns run state (lives, level index, run start/end) as the sole singleton | `OnRunStarted`, `OnRunEnded`, `OnLivesChanged`, `OnLevelChanged` | `PlayerShip.OnPlayerDeath` | `SceneLoader` (request scene loads) |
+| `GameManager.cs` | Owns run state (lives, level index, run start/end) as the sole singleton; also the cross-scene reference hub (exposes `InputManager` so GameLogic systems resolve it without `Find`) | `OnRunStarted`, `OnRunEnded`, `OnLivesChanged`, `OnLevelChanged` | `PlayerShip.OnPlayerDeath`, `LevelManager.OnLevelCleared` | `SceneLoader` (request scene loads), `InputManager` (held + exposed) |
 | `SceneLoader.cs` | Loads/unloads Bootstrap · MainMenu · GameLogic · HUD scenes | `OnSceneLoaded` | — | — (called by GameManager) |
 | `InputManager.cs` | Reads keyboard+mouse, exposes move/fire intents | `OnFirePressed` (or polled `MoveAxis`/`FireHeld` properties) | — | — (read by PlayerShip) |
 
@@ -57,6 +57,8 @@
 | GameManager | UIManager, AudioManager, LevelManager | `OnLivesChanged` / `OnLevelChanged` / `OnRunStarted` / `OnRunEnded` events | Single source of run state |
 | GameManager | SceneLoader | Direct method call | Requests scene transitions (the only scene-load path) |
 | EnemyFormation | LevelManager | `OnFormationCleared` event | Level advances when the formation is empty |
+| LevelManager | GameManager | `OnLevelCleared` event → `HandleLevelCleared()` | GameManager advances the level index / wins the run at level 6 (the only LevelManager→GameManager edge) |
+| GameManager | PlayerShip (and other GameLogic systems) | Exposes `Input` (InputManager) via `GameManager.Instance` | Cross-scene reference resolution hub — avoids `Find` for Bootstrap-resident services |
 | LevelManager | EnemyFormation, EnemyFireController | `OnLevelStarted` event (carries level config) | Spawns/configures the wave for the level |
 | LevelManager | PowerUpSystem, AudioManager, JuiceManager, UIManager | `OnLevelCleared` event | Triggers between-level power-up offer + payoff |
 | ScoreSystem | UIManager | `OnScoreChanged` event | HUD reflects score |
