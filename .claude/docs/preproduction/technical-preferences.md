@@ -82,7 +82,7 @@
 | General C# scripts, scene wiring | `gameplay-programmer` | Default for most Unity work |
 | Architecture review, code audit | `technical-director` | Read-only — advises, does not implement |
 | Shader / material work | Manual (no dedicated agent) | URP 2D shader graphs hand-authored; rare in v1 |
-| UI implementation | `ui-programmer` | UGUI Canvas for HUD/menus (specify in task) |
+| UI implementation | `ui-programmer` | UI Toolkit (`.uxml` + `.uss`) for HUD/menus (specify in task) |
 | Audio (SFX/music) | `audio-engineer` | Juice pass — generates and wires clips |
 | Level / brick-grid layout | `level-designer` | Invader formation layouts, level data |
 | Asset loading / Addressables | `gameplay-programmer` | |
@@ -94,6 +94,6 @@
 |---|---|
 | `.cs` game scripts | `gameplay-programmer` |
 | `.shader`, `.shadergraph`, `.mat` | Manual |
-| `.uxml`, `.uss`, Canvas prefabs | `ui-programmer` |
+| `.uxml`, `.uss` (UI Toolkit) | `ui-programmer` |
 | `.unity`, `.prefab` | `gameplay-programmer` (via coplay MCP) |
 | Architecture review | `technical-director` |
