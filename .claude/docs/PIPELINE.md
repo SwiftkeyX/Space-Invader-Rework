@@ -5,7 +5,7 @@
 - [x] Fill out `docs/design/game-vision.md`
 - [x] Fill out `docs/design/design-decisions.md`
 - [x] Fill out `docs/technical/technical-preferences.md` (engine, platform, performance budgets)
-- [ ] Fill out `docs/design/systems-design.md` — list every system, tier, and dependencies
+- [x] Fill out `docs/design/systems-design.md` — list every system, tier, and dependencies
 - [ ] Fill out `docs/technical/architecture.md` with finalized script table
 - [ ] Fill out `docs/technical/best-practices.md` — add project-critical patterns section
 - [ ] Milestone 0 — vision complete, all systems tiered, architecture and tech stack finalized
