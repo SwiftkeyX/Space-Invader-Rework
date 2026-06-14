@@ -51,13 +51,28 @@ Check the active phase's **Entry:** line in PIPELINE.md.
 
 - **Phase 1:** Entry is always open — proceed.
 - **Phase 2:** Entry requires Milestone 0 = [x]. If not, refuse: "Phase 2 is locked. Complete Phase 1 and check off Milestone 0 first."
-- **Phase 3:** Entry requires Milestone 2 = [x]. If not, refuse: "Phase 3 is locked. Complete all Phase 2 systems and check off Milestone 2 first."
+- **Phase 3:** Entry requires Milestone 3 = [x] **and** Architecture pass = [x]. If either is unchecked, refuse: "Phase 3 is locked. Complete all Phase 2 systems (Milestone 3) and the architecture pass (`/architecture-pass`) first."
 
 ---
 
 ## Step 4 — Validate gate when user requests a tick
 
 If the user says an item is done and wants it checked off, validate its gate first:
+
+**Milestone 1 — all system GDDs written and approved (Phase 2, Sub-phase A):**
+Tickable only when every "GDD written" cell across all three Phase 2 tier tables is `[x]` **and** the
+user has confirmed they approved the GDDs. If any GDD is missing or unapproved, list what's outstanding
+and refuse. This milestone is the hard gate for Sub-phase B coding.
+
+**Test Gate (Phase 2):**
+Call `play_game`, let it run 10–15 seconds, call `stop_game`, and report the console state. Ask the
+user to confirm the gate's checklist passed (the gate line text in PIPELINE.md). Only tick on an
+explicit "yes". Until the gate is `[x]`, refuse to tick any system in the next tier.
+
+**Architecture pass (Phase 2 exit):**
+This item is ticked by `/architecture-pass` itself, only after a `technical-director` audit reports
+clean and the refactor PR(s) merged. Do not tick it here on request — if the user asks, direct them
+to run `/architecture-pass` and refuse until its audit is clean.
 
 **Feel tuning / Difficulty tuning:**
 Ask the user directly:
@@ -99,4 +114,6 @@ Format: "Run `/beta-task` to continue."
 
 - Always scan all phases for regressions before reporting status — never assume earlier phases are clean
 - Never tick a gated item without running the gate check — not even if the user insists
+- Never tick a system in a tier while the previous tier's test gate is unchecked — the test gate blocks tier advancement
+- Never tick a system's *Implemented* cell (Sub-phase B) while `Milestone 1 — all system GDDs written and approved` is unchecked — coding is gated on the GDD milestone
 - Keep the response short: status line, next action, route suggestion. No preamble.
