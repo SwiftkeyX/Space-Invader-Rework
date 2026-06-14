@@ -50,9 +50,9 @@ public class AudioManager : MonoBehaviour
     private float _lastKillTime = -999f;
 
     // Cross-scene subscriptions (GameLogic systems found on scene load)
-    private LevelManager  _levelManager;
-    private PlayerShip    _playerShip;
-    private PowerUpSystem _powerUpSystem;
+    private LevelManager       _levelManager;
+    private PlayerShipContext  _playerShip;
+    private PowerUpSystem      _powerUpSystem;
 
     // -------------------------------------------------------------------------
     // Lifecycle
@@ -106,9 +106,9 @@ public class AudioManager : MonoBehaviour
     // Scene-load driven cross-scene subscriptions
     // -------------------------------------------------------------------------
 
-    private void HandleSceneLoaded(string label)
+    private void HandleSceneLoaded(SceneLoader.SceneLabel label)
     {
-        if (label == "Gameplay")
+        if (label == SceneLoader.SceneLabel.Gameplay)
             SubscribeToGameplayScene();
         else
             UnsubscribeFromGameplayScene();
@@ -117,7 +117,7 @@ public class AudioManager : MonoBehaviour
     private void SubscribeToGameplayScene()
     {
         _levelManager  = FindFirstObjectByType<LevelManager>();
-        _playerShip    = FindFirstObjectByType<PlayerShip>();
+        _playerShip    = FindFirstObjectByType<PlayerShipContext>();
         _powerUpSystem = FindFirstObjectByType<PowerUpSystem>();
 
         if (_levelManager != null)

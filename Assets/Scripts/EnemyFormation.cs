@@ -101,11 +101,27 @@ public class EnemyFormation : MonoBehaviour
     private void Update()
     {
         if (!_active || _living.Count == 0) return;
+        March();
+    }
 
+    private void March()
+    {
+        float dx = _direction * ComputeSpeed() * Time.deltaTime;
+        var (minX, maxX, minY) = ComputeBounds();
+        if (CheckEdge(dx, minX, maxX))
+            StepDown(minY);
+        else
+            MarchStep(dx);
+    }
+
+    private float ComputeSpeed()
+    {
         float frac = (float)_living.Count / Mathf.Max(1, _startCount);
-        float speed = Mathf.Lerp(_maxSpeed, _baseSpeed, frac);
-        float dx = _direction * speed * Time.deltaTime;
+        return Mathf.Lerp(_maxSpeed, _baseSpeed, frac);
+    }
 
+    private (float minX, float maxX, float minY) ComputeBounds()
+    {
         float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue;
         foreach (var e in _living)
         {
@@ -114,24 +130,30 @@ public class EnemyFormation : MonoBehaviour
             if (p.x > maxX) maxX = p.x;
             if (p.y < minY) minY = p.y;
         }
+        return (minX, maxX, minY);
+    }
 
-        bool hitEdge = (_direction > 0 && maxX + dx >= rightBound) || (_direction < 0 && minX + dx <= leftBound);
-        if (hitEdge)
-        {
-            _direction = -_direction;
-            foreach (var e in _living)
-                e.transform.position += Vector3.down * _stepDown;
+    private bool CheckEdge(float dx, float minX, float maxX)
+    {
+        return (_direction > 0 && maxX + dx >= rightBound) || (_direction < 0 && minX + dx <= leftBound);
+    }
 
-            if (minY - _stepDown <= playerLineY)
-            {
-                _active = false;
-                if (GameManager.Instance != null) GameManager.Instance.ForceGameOver();
-            }
-        }
-        else
+    private void MarchStep(float dx)
+    {
+        foreach (var e in _living)
+            e.transform.position += Vector3.right * dx;
+    }
+
+    private void StepDown(float minY)
+    {
+        _direction = -_direction;
+        foreach (var e in _living)
+            e.transform.position += Vector3.down * _stepDown;
+
+        if (minY - _stepDown <= playerLineY)
         {
-            foreach (var e in _living)
-                e.transform.position += Vector3.right * dx;
+            _active = false;
+            if (GameManager.Instance != null) GameManager.Instance.ForceGameOver();
         }
     }
 

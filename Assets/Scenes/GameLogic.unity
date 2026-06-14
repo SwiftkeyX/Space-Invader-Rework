@@ -131,6 +131,8 @@ GameObject:
   - component: {fileID: 53180965}
   - component: {fileID: 53180964}
   - component: {fileID: 53180963}
+  - component: {fileID: 53180968}
+  - component: {fileID: 53180967}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -150,21 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d59488928417a244089852b83d271d40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShip
-  moveSpeed: 9
-  leftBound: -8
-  rightBound: 8
-  projectilePrefab: {fileID: 5366977234640759715, guid: 457bd489e30139f4a85e84247b0e62c5, type: 3}
-  muzzle: {fileID: 1829933963}
-  baseFireCooldown: 0.25
-  projectileSpeed: 18
-  projectileDamage: 1
-  projectileLifetime: 3
-  invulnDuration: 1
-  minFireCooldown: 0.05
-  maxMoveSpeed: 20
-  maxProjectileSpeed: 40
-  maxMultiShot: 5
-  maxProjectileDamage: 10
 --- !u!61 &53180964
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -286,6 +273,47 @@ Transform:
   - {fileID: 1829933963}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &53180967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 53180962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff363f19193b1794d83b89e0f863ffad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BasicWeapon
+  muzzle: {fileID: 1829933963}
+  projectilePrefab: {fileID: 5366977234640759715, guid: 457bd489e30139f4a85e84247b0e62c5, type: 3}
+--- !u!114 &53180968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 53180962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5faef297882d20489554c2e544b4b3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerShipContext
+  moveSpeed: 9
+  leftBound: -8
+  rightBound: 8
+  baseFireCooldown: 0.25
+  projectileSpeed: 18
+  projectileDamage: 1
+  projectileLifetime: 3
+  invulnDuration: 1
+  minFireCooldown: 0.05
+  maxMoveSpeed: 20
+  maxProjectileSpeed: 40
+  maxMultiShot: 5
+  maxProjectileDamage: 10
+  weapon: {fileID: 53180967}
+  powerUpSystem: {fileID: 822404105}
 --- !u!1 &174902587
 GameObject:
   m_ObjectHideFlags: 0
