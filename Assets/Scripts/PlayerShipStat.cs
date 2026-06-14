@@ -18,6 +18,7 @@ public class PlayerShipStat : MonoBehaviour, IDamageable
     [SerializeField] private float projectileLifetime = 3f;
 
     [Header("Survival")]
+    [SerializeField] private int   maxHealth     = 1;
     [SerializeField] private float invulnDuration = 1.0f;
 
     [Header("Power-up caps")]
@@ -43,6 +44,8 @@ public class PlayerShipStat : MonoBehaviour, IDamageable
     public float ProjectileLifetime { get; private set; }
     public int   MultiShot      { get; private set; }
 
+    public int   MaxHealth        => maxHealth;
+    public int   Health           { get; private set; }
     public float InvulnDuration   => invulnDuration;
     public bool  IsInvulnerable   { get; set; }
     public float InvulnTimer      { get; set; }
@@ -57,14 +60,20 @@ public class PlayerShipStat : MonoBehaviour, IDamageable
         ProjectileDamage  = projectileDamage;
         ProjectileLifetime = projectileLifetime;
         MultiShot         = 1;
+        Health            = maxHealth;
     }
 
-    /// <summary>Called by Projectile via IDamageable. Blocked during invuln; otherwise costs a life and starts the invuln window.</summary>
+    /// <summary>Called by Projectile via IDamageable. Blocked during invuln; otherwise reduces Health and starts the invuln window. Fires OnPlayerDeath when Health reaches 0 and resets Health to MaxHealth.</summary>
     public void TakeDamage(int damage)
     {
         if (IsInvulnerable) return;
+        Health = Mathf.Max(0, Health - damage);
         OnPlayerHit?.Invoke();
-        OnPlayerDeath?.Invoke();
+        if (Health <= 0)
+        {
+            OnPlayerDeath?.Invoke();
+            Health = maxHealth;
+        }
         IsInvulnerable = true;
         InvulnTimer    = invulnDuration;
     }

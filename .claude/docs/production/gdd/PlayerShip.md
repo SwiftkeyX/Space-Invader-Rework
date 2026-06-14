@@ -11,7 +11,7 @@ The player-ship system uses a Behavior Tree (BT migration, 2026-06-14):
 | Class | Type | Responsibility |
 |---|---|---|
 | `PlayerShipContext` | MonoBehaviour | Thin BT coordinator: owns BT root, wires events, `Update()` is guard + `_btRoot.Tick(dt)` only |
-| `PlayerShipStat` | MonoBehaviour · IDamageable | Numeric stats + damage surface: speed, cooldown, damage, multiShot; `TakeDamage()`, invuln flag + timer, `OnPlayerHit`/`OnPlayerDeath` events |
+| `PlayerShipStat` | MonoBehaviour · IDamageable | Numeric stats + damage surface: speed, cooldown, damage, multiShot; `Health`/`MaxHealth`; `TakeDamage()` reduces health, fires `OnPlayerDeath` at 0 and resets; invuln flag + timer; `OnPlayerHit`/`OnPlayerDeath` events |
 | `BTParallel` | plain C# | BT composite: ticks all children every frame (move, fire, invuln run concurrently) |
 | `MoveAction` | plain C# (BTNode) | Reads `InputManager.MoveAxis`, clamps and sets `transform.position` each tick |
 | `FireAction` | plain C# (BTNode) | Delegates to `Weapon.HandleFire` each tick |
