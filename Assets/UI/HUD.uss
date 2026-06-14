@@ -1,0 +1,59 @@
+.hud-text {
+    color: rgb(255, 255, 255);
+    font-size: 32px;
+    -unity-font-style: bold;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.9);
+}
+
+.title-text {
+    color: rgb(255, 220, 60);
+    font-size: 48px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.9);
+}
+
+.action-button {
+    background-color: rgb(50, 160, 255);
+    color: rgb(255, 255, 255);
+    font-size: 28px;
+    -unity-font-style: bold;
+    border-width: 0;
+    border-radius: 8px;
+    padding: 14px 40px;
+}
+
+.action-button:hover {
+    background-color: rgb(90, 190, 255);
+}
+
+.powerup-card {
+    background-color: rgba(20, 20, 40, 0.95);
+    border-color: rgb(80, 140, 255);
+    border-width: 2px;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px;
+    width: 200px;
+    align-items: center;
+}
+
+.powerup-card:hover {
+    background-color: rgba(40, 60, 120, 0.95);
+    border-color: rgb(140, 200, 255);
+}
+
+.card-name {
+    color: rgb(140, 200, 255);
+    font-size: 22px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+}
+
+.card-desc {
+    color: rgb(200, 200, 220);
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

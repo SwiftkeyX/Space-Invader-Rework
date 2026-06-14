@@ -19,14 +19,14 @@ Orchestrator — routes to sub-skills. See sub-skill agent assignments.
 
 ## Entry Condition
 
-Milestone 2 = [x] in PIPELINE.md. If not met, stop: "Phase 3 is locked — complete all Phase 2 systems first."
+Milestone 3 = [x] **and** Architecture pass = [x] in PIPELINE.md. If either is unmet, stop: "Phase 3 is locked — complete all Phase 2 systems (Milestone 3) and the architecture pass (`/architecture-pass`) first."
 
 ---
 
 ## Steps
 
 **Step 1 — Entry check**
-Read PIPELINE.md. Confirm Milestone 2 = [x]. If not, stop with the message above.
+Read PIPELINE.md. Confirm Milestone 3 = [x] **and** Architecture pass = [x]. If either is unmet, stop with the message above.
 
 **Step 2 — Find first unchecked Phase 3 item**
 If all Phase 3 items are `[x]`, report "Phase 3 complete." and stop.

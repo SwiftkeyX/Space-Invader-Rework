@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="false">
+    <Style src="project://database/Assets/UI/HUD.uss" />
+    <ui:VisualElement name="root" style="width: 100%; height: 100%; position: absolute;">
+
+        <!-- HUD bar — top strip, always visible during play -->
+        <ui:VisualElement name="hud" style="flex-direction: row; justify-content: space-between; align-items: center; padding-left: 24px; padding-right: 24px; padding-top: 12px; padding-bottom: 12px; background-color: rgba(0,0,0,0.55);">
+            <ui:Label name="lives-label"  text="H H H"  class="hud-text" />
+            <ui:Label name="level-label"  text="LEVEL 1"   class="hud-text" />
+            <ui:Label name="score-label"  text="0"         class="hud-text" />
+        </ui:VisualElement>
+
+        <!-- Power-up pick screen — centered overlay, hidden by default -->
+        <ui:VisualElement name="pick-screen" style="display: none; position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.75);">
+            <ui:Label name="pick-title" text="CHOOSE YOUR UPGRADE" class="title-text" style="margin-bottom: 24px;" />
+            <ui:VisualElement name="cards-container" style="flex-direction: row; justify-content: center;" />
+        </ui:VisualElement>
+
+        <!-- End screen — centered overlay, hidden by default -->
+        <ui:VisualElement name="end-screen" style="display: none; position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.85);">
+            <ui:Label name="result-label"      text="GAME OVER"  class="title-text"  style="margin-bottom: 12px;" />
+            <ui:Label name="final-score-label" text="Score: 0"   class="hud-text"    style="margin-bottom: 32px;" />
+            <ui:Button name="restart-button"   text="PLAY AGAIN" class="action-button" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
