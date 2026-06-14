@@ -1,19 +1,21 @@
 # PlayerShip
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-14 (reconcile-gdd: PlayerShipStat mutation API, SceneLoader enum, EnemyFormation Update)
+> **Last Updated**: 2026-06-14 (state-pattern refactor: BasePlayerShipState hierarchy, Update() thin, BasicWeapon unified loop)
 > **Implements Pillar**: Chaotic + Fun — the player's instrument for reacting to bullet-hell density; tight, fair, survivable.
 
 ## Summary
 
-The player-ship system is split across four classes (architecture pass, 2026-06-14):
+The player-ship system is split across six classes (state-pattern refactor, 2026-06-14):
 
 | Class | Type | Responsibility |
 |---|---|---|
-| `PlayerShipContext` | MonoBehaviour | Thin coordinator: lifecycle, event surface, wires subsystems |
-| `PlayerShipState` | plain C# | Runtime conditions: i-frame timer (unscaled), invuln flag |
-| `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot; exposes individual clamped-mutation methods (`ModifyFireCooldown`, `ModifyMultiShot`, `ModifyProjectileDamage`, `ModifyMoveSpeed`, `ModifyProjectileSpeed`) — no PowerUpData coupling |
-| `Weapon` / `BasicWeapon` | abstract / concrete MonoBehaviour | Fire logic, projectile pool, spread patterns |
+| `PlayerShipContext` | MonoBehaviour | Thin coordinator: owns state machine; `Update()` is guard + `_state.Tick(dt)` only |
+| `BasePlayerShipState` | abstract plain C# | Base for all ship behavioural states; subclasses handle move + fire + conditions per-tick |
+| `ActivePlayerState` | plain C# | Normal gameplay: reads input, moves, fires; resets sprite to full alpha on enter |
+| `InvulnPlayerState` | plain C# | Post-hit: moves, fires, blinks sprite, counts down unscaled timer; transitions to Active on expiry |
+| `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot; individual clamped-mutation methods — no PowerUpData coupling |
+| `Weapon` / `BasicWeapon` | abstract / concrete MonoBehaviour | Fire logic, projectile pool, spread pattern (unified loop — MultiShot=1 fires at angle 0) |
 
 `PlayerShipContext` implements `IDamageable` so `Projectile` can call `TakeDamage()` without knowing the concrete type. `PowerUpSystem` is wired via Inspector (no `FindFirstObjectByType`).
 
