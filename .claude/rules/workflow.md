@@ -47,12 +47,7 @@ For implementation tasks, use the phase skill that matches the current pipeline 
 |---|---|---|
 | Phase 1 | `/preproduction-task` | Fill out design and technical docs |
 | Phase 2 | `/production-task` | Design GDD and implement a system |
-| Phase 2 → 3 bridge | `/architecture-pass` | After the game is built & tested, refactor the architecture to match the GDDs |
 | Phase 3 | `/beta-task` | Feel tuning, bug pass, performance pass, release |
-
-### Production-exit architecture pass
-
-When `/production-task` reaches Milestone 3 (game built and tested), it asks a **go/no-go**: *continue* or *ditch the game* if the idea didn't pan out. On `continue` it hands off to **`/architecture-pass`** — the Phase 2 → Phase 3 bridge. That skill is just the **named application of the PR-review lifecycle loop** drawn at the top of this file: it audits the architecture (`technical-director`), fixes issues via `/code`, commits via `/make-commit-plan`, you review the PR, then `/reconcile-gdd` syncs code and GDDs and merges — looping until a `technical-director` audit is clean. **Phase 3 (`/beta-task`) is locked until the Architecture pass is `[x]`.**
 
 For one-off doc lookups, consult `.claude/docs/index.md`.  
 For git branch and push rules, see `.claude/rules/git-hygiene.md`.
