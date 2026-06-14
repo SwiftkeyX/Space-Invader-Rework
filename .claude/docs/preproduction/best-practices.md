@@ -50,6 +50,14 @@ These rules are **hard constraints**, not suggestions. They override the Unity 6
 
 **Why**: Hit-stop (D6) sets `Time.timeScale = 0`. Scaled time freezes during hit-stop, silently stalling i-frame and power-up timers and causing chain-death or stuck-effect bugs.
 
+### Behavior Tree leaves must read unscaled time directly
+
+**Rule**: BT leaf nodes (`BTNode.Tick(float dt)`) that manage i-frame or power-up timers must call `Time.unscaledDeltaTime` themselves — never use the passed `dt`.
+
+**Why**: `PlayerShipContext.Update()` passes `Time.deltaTime` to `_btRoot.Tick(dt)`. During hit-stop (`timeScale = 0`) `dt` is 0, freezing any leaf that uses it for a timer. The Pause/hit-stop-safe rule still applies; it just must be satisfied inside the leaf, not via the passed argument.
+
+**How to apply**: `InvulnOverlayAction` is the reference implementation — it ignores `dt` and decrements `InvulnTimer` with `Time.unscaledDeltaTime` directly.
+
 ### Horizontal-only player movement (invariant)
 
 **Rule**: The player ship moves on the X axis only. Never add a vertical or dodge-dash axis.

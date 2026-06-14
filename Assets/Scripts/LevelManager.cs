@@ -21,7 +21,10 @@ public class LevelManager : MonoBehaviour
     private void OnEnable()
     {
         if (GameManager.Instance != null)
+        {
             GameManager.Instance.OnLevelChanged += HandleLevelChanged;
+            OnLevelCleared += GameManager.Instance.HandleLevelCleared;
+        }
         if (formation != null)
             formation.OnFormationCleared += HandleFormationCleared;
     }
@@ -29,7 +32,10 @@ public class LevelManager : MonoBehaviour
     private void OnDisable()
     {
         if (GameManager.Instance != null)
+        {
             GameManager.Instance.OnLevelChanged -= HandleLevelChanged;
+            OnLevelCleared -= GameManager.Instance.HandleLevelCleared;
+        }
         if (formation != null)
             formation.OnFormationCleared -= HandleFormationCleared;
     }
@@ -55,8 +61,6 @@ public class LevelManager : MonoBehaviour
     {
         int index = GameManager.Instance != null ? GameManager.Instance.CurrentLevelIndex : 0;
         OnLevelCleared?.Invoke(index);
-        if (GameManager.Instance != null)
-            GameManager.Instance.HandleLevelCleared();
     }
 
     private LevelData GetLevel(int oneBasedIndex)
