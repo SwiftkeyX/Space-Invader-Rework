@@ -110,11 +110,10 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Subscribed to LevelManager.OnLevelCleared (wired in Tier 2). Advances to
-    /// the next level, or wins the run when the final level is cleared.
-    /// NOTE: this edge is pending addition to architecture.md.
+    /// Subscribed to LevelManager.OnLevelCleared via event (wired in LevelManager.OnEnable).
+    /// Advances to the next level, or wins the run when the final level is cleared.
     /// </summary>
-    public void HandleLevelCleared()
+    public void HandleLevelCleared(int _)
     {
         if (State != GameState.Running) return;
         if (CurrentLevelIndex >= totalLevels)
