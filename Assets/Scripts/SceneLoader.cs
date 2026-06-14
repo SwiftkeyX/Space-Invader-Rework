@@ -16,12 +16,13 @@ public class SceneLoader : MonoBehaviour
     public const string Hud = "HUD";
 
     public enum BootTarget { None, MainMenu, Gameplay }
+    public enum SceneLabel { None, MainMenu, Gameplay }
 
     [Tooltip("What Bootstrap loads on start. MainMenu for the real flow; Gameplay to jump straight into a run.")]
     [SerializeField] private BootTarget bootTarget = BootTarget.MainMenu;
 
-    /// <summary>Raised after a requested scene set finishes loading. Payload: a label of the active set.</summary>
-    public event Action<string> OnSceneLoaded;
+    /// <summary>Raised after a requested scene set finishes loading. Payload: label of the active set.</summary>
+    public event Action<SceneLabel> OnSceneLoaded;
 
     private bool _busy;
 
@@ -31,36 +32,36 @@ public class SceneLoader : MonoBehaviour
     {
         switch (bootTarget)
         {
-            case BootTarget.MainMenu: LoadMainMenu(); break;
-            case BootTarget.Gameplay: LoadGameplay(); break;
+            case BootTarget.MainMenu:  LoadMainMenu();  break;
+            case BootTarget.Gameplay:  LoadGameplay();  break;
         }
     }
 
     /// <summary>Show the main menu (unloads gameplay scenes).</summary>
     public void LoadMainMenu()
     {
-        RequestTransition("MainMenu", new[] { MainMenu }, new[] { GameLogic, Hud });
+        RequestTransition(SceneLabel.MainMenu, new[] { MainMenu }, new[] { GameLogic, Hud });
     }
 
     /// <summary>Start gameplay: load GameLogic + HUD together (unloads the menu).</summary>
     public void LoadGameplay()
     {
-        RequestTransition("Gameplay", new[] { GameLogic, Hud }, new[] { MainMenu });
+        RequestTransition(SceneLabel.Gameplay, new[] { GameLogic, Hud }, new[] { MainMenu });
     }
 
     /// <summary>Restart gameplay: unload then reload GameLogic + HUD fresh.</summary>
     public void ReloadGameplay()
     {
-        RequestTransition("Gameplay", new[] { GameLogic, Hud }, new[] { GameLogic, Hud });
+        RequestTransition(SceneLabel.Gameplay, new[] { GameLogic, Hud }, new[] { GameLogic, Hud });
     }
 
     /// <summary>Tear down gameplay scenes (e.g. back to menu).</summary>
     public void UnloadGameplay()
     {
-        RequestTransition("None", Array.Empty<string>(), new[] { GameLogic, Hud });
+        RequestTransition(SceneLabel.None, Array.Empty<string>(), new[] { GameLogic, Hud });
     }
 
-    private void RequestTransition(string label, string[] toLoad, string[] toUnload)
+    private void RequestTransition(SceneLabel label, string[] toLoad, string[] toUnload)
     {
         if (_busy)
         {
@@ -70,7 +71,7 @@ public class SceneLoader : MonoBehaviour
         StartCoroutine(TransitionRoutine(label, toLoad, toUnload));
     }
 
-    private IEnumerator TransitionRoutine(string label, string[] toLoad, string[] toUnload)
+    private IEnumerator TransitionRoutine(SceneLabel label, string[] toLoad, string[] toUnload)
     {
         _busy = true;
 

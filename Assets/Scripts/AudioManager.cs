@@ -106,9 +106,9 @@ public class AudioManager : MonoBehaviour
     // Scene-load driven cross-scene subscriptions
     // -------------------------------------------------------------------------
 
-    private void HandleSceneLoaded(string label)
+    private void HandleSceneLoaded(SceneLoader.SceneLabel label)
     {
-        if (label == "Gameplay")
+        if (label == SceneLoader.SceneLabel.Gameplay)
             SubscribeToGameplayScene();
         else
             UnsubscribeFromGameplayScene();

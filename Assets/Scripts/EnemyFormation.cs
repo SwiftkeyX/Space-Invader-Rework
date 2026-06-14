@@ -101,10 +101,13 @@ public class EnemyFormation : MonoBehaviour
     private void Update()
     {
         if (!_active || _living.Count == 0) return;
+        March();
+    }
 
+    private void March()
+    {
         float dx = _direction * ComputeSpeed() * Time.deltaTime;
         var (minX, maxX, minY) = ComputeBounds();
-
         if (CheckEdge(dx, minX, maxX))
             StepDown(minY);
         else

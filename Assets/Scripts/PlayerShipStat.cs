@@ -39,25 +39,9 @@ public class PlayerShipStat
         _maxProjectileDamage = maxProjectileDamage;
     }
 
-    public void Apply(PowerUpData data)
-    {
-        switch (data.effect)
-        {
-            case PowerUpEffect.RapidFire:
-                FireCooldown = Mathf.Max(_minFireCooldown, FireCooldown - data.magnitude);
-                break;
-            case PowerUpEffect.MultiShot:
-                MultiShot = Mathf.Min(MultiShot + (int)data.magnitude, _maxMultiShot);
-                break;
-            case PowerUpEffect.PowerShot:
-                ProjectileDamage = Mathf.Min(ProjectileDamage + (int)data.magnitude, _maxProjectileDamage);
-                break;
-            case PowerUpEffect.Swift:
-                MoveSpeed = Mathf.Min(MoveSpeed + data.magnitude, _maxMoveSpeed);
-                break;
-            case PowerUpEffect.BulletSpeed:
-                ProjectileSpeed = Mathf.Min(ProjectileSpeed + data.magnitude, _maxProjectileSpeed);
-                break;
-        }
-    }
+    public void ModifyFireCooldown(float delta)    => FireCooldown = Mathf.Max(_minFireCooldown, FireCooldown - delta);
+    public void ModifyMultiShot(int delta)         => MultiShot = Mathf.Min(MultiShot + delta, _maxMultiShot);
+    public void ModifyProjectileDamage(int delta)  => ProjectileDamage = Mathf.Min(ProjectileDamage + delta, _maxProjectileDamage);
+    public void ModifyMoveSpeed(float delta)       => MoveSpeed = Mathf.Min(MoveSpeed + delta, _maxMoveSpeed);
+    public void ModifyProjectileSpeed(float delta) => ProjectileSpeed = Mathf.Min(ProjectileSpeed + delta, _maxProjectileSpeed);
 }

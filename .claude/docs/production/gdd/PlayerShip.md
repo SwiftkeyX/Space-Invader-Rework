@@ -1,7 +1,7 @@
 # PlayerShip
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-14
+> **Last Updated**: 2026-06-14 (reconcile-gdd: PlayerShipStat mutation API, SceneLoader enum, EnemyFormation Update)
 > **Implements Pillar**: Chaotic + Fun — the player's instrument for reacting to bullet-hell density; tight, fair, survivable.
 
 ## Summary
@@ -12,7 +12,7 @@ The player-ship system is split across four classes (architecture pass, 2026-06-
 |---|---|---|
 | `PlayerShipContext` | MonoBehaviour | Thin coordinator: lifecycle, event surface, wires subsystems |
 | `PlayerShipState` | plain C# | Runtime conditions: i-frame timer (unscaled), invuln flag |
-| `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot + power-up `Apply()` |
+| `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot; exposes individual clamped-mutation methods (`ModifyFireCooldown`, `ModifyMultiShot`, `ModifyProjectileDamage`, `ModifyMoveSpeed`, `ModifyProjectileSpeed`) — no PowerUpData coupling |
 | `Weapon` / `BasicWeapon` | abstract / concrete MonoBehaviour | Fire logic, projectile pool, spread patterns |
 
 `PlayerShipContext` implements `IDamageable` so `Projectile` can call `TakeDamage()` without knowing the concrete type. `PowerUpSystem` is wired via Inspector (no `FindFirstObjectByType`).

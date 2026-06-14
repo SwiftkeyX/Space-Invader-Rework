@@ -107,15 +107,17 @@ public class PlayerShipContext : MonoBehaviour, IDamageable
         OnPlayerDeath?.Invoke();
     }
 
-    /// <summary>Called via PowerUpSystem.OnPowerUpChosen. Delegates to stat or GameManager.</summary>
-    public void ApplyPowerUp(PowerUpData data)
+    private void ApplyPowerUp(PowerUpData data)
     {
-        if (data.effect == PowerUpEffect.ExtraLife)
+        switch (data.effect)
         {
-            GameManager.Instance?.AddLife(1);
-            return;
+            case PowerUpEffect.ExtraLife:   GameManager.Instance?.AddLife(1); break;
+            case PowerUpEffect.RapidFire:   _stat.ModifyFireCooldown(data.magnitude); break;
+            case PowerUpEffect.MultiShot:   _stat.ModifyMultiShot((int)data.magnitude); break;
+            case PowerUpEffect.PowerShot:   _stat.ModifyProjectileDamage((int)data.magnitude); break;
+            case PowerUpEffect.Swift:       _stat.ModifyMoveSpeed(data.magnitude); break;
+            case PowerUpEffect.BulletSpeed: _stat.ModifyProjectileSpeed(data.magnitude); break;
         }
-        _stat.Apply(data);
         weapon?.ApplyPowerUp(data);
         Debug.Log($"[PlayerShipContext] Applied {data.displayName} — effect={data.effect} mag={data.magnitude}");
     }
