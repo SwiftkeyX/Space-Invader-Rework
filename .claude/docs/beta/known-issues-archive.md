@@ -4,6 +4,22 @@
 
 ---
 
+### #3 — [Juice] Camera drifts after screen shake
+
+| Field | Value |
+|---|---|
+| **ID** | #3 |
+| **Severity** | Medium |
+| **System** | JuiceManager / Camera |
+| **Reported** | 2026-06-14 |
+| **Status** | Closed |
+| **Fixed in** | 2026-06-14 — `JuiceManager.cs`: capture `_basePos` once in `Awake`; remove per-frame `_basePos` overwrite; restore `_cam.transform.position = _basePos` when shake ends |
+
+**Root cause:** `_basePos` was reassigned from `_cam.transform.position` every frame in `Update()`. After each shake applied a random offset, the next frame read the already-offset position as the new base, accumulating drift permanently.  
+**Fix:** `_basePos` set once on `Awake`. Shake offsets are always applied relative to this fixed rest position. On shake end, camera is explicitly restored to `_basePos`.
+
+---
+
 ### #2 — [UI] Restart button unresponsive on game-over screen after player death
 
 | Field | Value |
