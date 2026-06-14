@@ -17,6 +17,8 @@ public class EnemyFireController : MonoBehaviour
     private float _fireInterval;
     private float _bulletSpeed;
     private int _bulletDamage;
+    private float _bulletLifetime;
+    private float _muzzleOffset;
     private float _timer;
     private bool _active;
     private IObjectPool<Projectile> _pool;
@@ -52,11 +54,13 @@ public class EnemyFireController : MonoBehaviour
     private void HandleLevelStarted(LevelData data)
     {
         _activeShooters = Mathf.Max(1, data.activeShooters);
-        _fireInterval = Mathf.Max(0.1f, data.fireInterval);
-        _bulletSpeed = data.enemyBulletSpeed;
-        _bulletDamage = data.enemyBulletDamage;
-        _timer = _fireInterval;
-        _active = true;
+        _fireInterval   = Mathf.Max(0.1f, data.fireInterval);
+        _bulletSpeed    = data.enemyBulletSpeed;
+        _bulletDamage   = data.enemyBulletDamage;
+        _bulletLifetime = data.enemyBulletLifetime;
+        _muzzleOffset   = data.enemyMuzzleOffset;
+        _timer          = _fireInterval;
+        _active         = true;
     }
 
     private void Update()
@@ -77,8 +81,8 @@ public class EnemyFireController : MonoBehaviour
             if (shooter == null || !shooter.IsAlive) continue;
 
             var p = _pool.Get();
-            p.transform.SetPositionAndRotation(shooter.transform.position + Vector3.down * 0.5f, Quaternion.identity);
-            p.Init(Team.Enemy, Vector2.down, _bulletSpeed, _bulletDamage, 5f, _pool);
+            p.transform.SetPositionAndRotation(shooter.transform.position + Vector3.down * _muzzleOffset, Quaternion.identity);
+            p.Init(Team.Enemy, Vector2.down, _bulletSpeed, _bulletDamage, _bulletLifetime, _pool);
         }
     }
 }

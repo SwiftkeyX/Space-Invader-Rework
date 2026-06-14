@@ -30,6 +30,8 @@ public class LevelData : ScriptableObject
     public float fireInterval = 1.5f;
     public float enemyBulletSpeed = 5f;
     public int enemyBulletDamage = 1;
+    public float enemyBulletLifetime = 5f;
+    public float enemyMuzzleOffset = 0.5f;
 
     /// <summary>HP for a given row index (0 = front), clamped to the authored array.</summary>
     public int HealthForRow(int row)
