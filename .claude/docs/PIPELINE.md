@@ -48,7 +48,7 @@
 | PowerUpSystem | [x] | [x] |
 | HUD/UIManager | [x] | [x] |
 | AudioManager | [x] | [x] |
-| JuiceManager | [x] | [ ] |
+| JuiceManager | [x] | [x] |
 
 - [x] 🧪 Test Gate 3 — Full content playthrough: score, HUD, power-ups, audio function across a level, console clean
 - [x] Milestone 3 — all features in, content complete
@@ -59,7 +59,7 @@
 
 ## Phase 3 — Beta
 
-- [ ] Juice pass — screen shake, particles, hit-stop, SFX, music, UI animations
+- [x] Juice pass — screen shake, particles, hit-stop, SFX, music, UI animations
 - [ ] Feel tuning — tweak values via ScriptableObjects/Inspector
 - [ ] Difficulty tuning — curve, pacing, escalation
 - [ ] Bug pass — all known issues fixed (`docs/process/known-issues.md` clear)
