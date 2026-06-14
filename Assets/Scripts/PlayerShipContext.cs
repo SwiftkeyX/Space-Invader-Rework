@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Lifecycle coordinator for the player ship. Update() delegates entirely to the active
-/// BasePlayerShipState via _state.Tick(dt). Implements IDamageable so Projectile can hit it
-/// without knowing the concrete type. See PlayerShip.md GDD.
+/// Blackboard + lifecycle coordinator for the player ship. Owns the BT root;
+/// Update() is a guard + _btRoot.Tick(dt). Implements IDamageable so Projectile
+/// can call TakeDamage() without knowing the concrete type. See PlayerShip.md GDD.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class PlayerShipContext : MonoBehaviour, IDamageable
@@ -41,24 +41,28 @@ public class PlayerShipContext : MonoBehaviour, IDamageable
 
     public Team Team => Team.Player;
 
-    // Surface exposed to state classes.
+    // Blackboard — read/written by BT nodes.
     public PlayerShipStat Stat => _stat;
     public Weapon Weapon => weapon;
-    public ActivePlayerState NormalState { get; private set; }
+    public SpriteRenderer Sprite { get; private set; }
+    public bool IsInvulnerable { get; set; }
+    public float InvulnTimer { get; set; }
+    public float InvulnDuration => invulnDuration;
 
     private PlayerShipStat _stat;
-    private BasePlayerShipState _state;
-    private SpriteRenderer _sprite;
+    private BTNode _btRoot;
 
     private void Awake()
     {
-        _sprite = GetComponentInChildren<SpriteRenderer>();
+        Sprite = GetComponentInChildren<SpriteRenderer>();
         _stat = new PlayerShipStat(
             moveSpeed, leftBound, rightBound,
             baseFireCooldown, projectileSpeed, projectileDamage, projectileLifetime,
             minFireCooldown, maxMoveSpeed, maxProjectileSpeed, maxMultiShot, maxProjectileDamage);
-        NormalState = new ActivePlayerState(this);
-        _state = NormalState;
+        _btRoot = new BTParallel(
+            new MoveAction(this),
+            new FireAction(this),
+            new InvulnOverlayAction(this));
     }
 
     private void Start()
@@ -80,39 +84,17 @@ public class PlayerShipContext : MonoBehaviour, IDamageable
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Running) return;
-        _state.Tick(Time.deltaTime);
+        _btRoot.Tick(Time.deltaTime);
     }
 
-    /// <summary>Transitions to a new behavioural state. Called by state classes.</summary>
-    public void TransitionTo(BasePlayerShipState next)
-    {
-        _state = next;
-        _state.OnEnter();
-    }
-
-    /// <summary>Moves the ship horizontally within bounds. Called by state classes.</summary>
-    public void PerformMove(InputManager input, float dt)
-    {
-        float axis = input != null ? input.MoveAxis : 0f;
-        var pos = transform.position;
-        pos.x = Mathf.Clamp(pos.x + axis * _stat.MoveSpeed * dt, _stat.LeftBound, _stat.RightBound);
-        transform.position = pos;
-    }
-
-    /// <summary>Sets sprite transparency. Called by state classes for blink feedback.</summary>
-    public void SetSpriteAlpha(float alpha)
-    {
-        if (_sprite != null)
-            _sprite.color = new Color(1f, 1f, 1f, alpha);
-    }
-
-    /// <summary>Called by Projectile via IDamageable. Blocked by InvulnPlayerState; otherwise costs a life and starts invuln.</summary>
+    /// <summary>Called by Projectile via IDamageable. Blocked during invuln; otherwise costs a life and starts the invuln window.</summary>
     public void TakeDamage(int damage)
     {
-        if (_state is InvulnPlayerState) return;
+        if (IsInvulnerable) return;
         OnPlayerHit?.Invoke();
         OnPlayerDeath?.Invoke();
-        TransitionTo(new InvulnPlayerState(this, invulnDuration));
+        IsInvulnerable = true;
+        InvulnTimer = invulnDuration;
     }
 
     private void ApplyPowerUp(PowerUpData data)

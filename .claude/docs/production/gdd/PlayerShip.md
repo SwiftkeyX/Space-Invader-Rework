@@ -1,19 +1,20 @@
 # PlayerShip
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-14 (state-pattern refactor: BasePlayerShipState hierarchy, Update() thin, BasicWeapon unified loop)
+> **Last Updated**: 2026-06-14 (BT migration: BTParallel root, MoveAction/FireAction/InvulnOverlayAction leaf nodes, Context as blackboard)
 > **Implements Pillar**: Chaotic + Fun — the player's instrument for reacting to bullet-hell density; tight, fair, survivable.
 
 ## Summary
 
-The player-ship system is split across six classes (state-pattern refactor, 2026-06-14):
+The player-ship system uses a Behavior Tree (BT migration, 2026-06-14):
 
 | Class | Type | Responsibility |
 |---|---|---|
-| `PlayerShipContext` | MonoBehaviour | Thin coordinator: owns state machine; `Update()` is guard + `_state.Tick(dt)` only |
-| `BasePlayerShipState` | abstract plain C# | Base for all ship behavioural states; subclasses handle move + fire + conditions per-tick |
-| `ActivePlayerState` | plain C# | Normal gameplay: reads input, moves, fires; resets sprite to full alpha on enter |
-| `InvulnPlayerState` | plain C# | Post-hit: moves, fires, blinks sprite, counts down unscaled timer; transitions to Active on expiry |
+| `PlayerShipContext` | MonoBehaviour | Blackboard + lifecycle: exposes data to BT nodes; `Update()` is guard + `_btRoot.Tick(dt)` only |
+| `BTParallel` | plain C# | BT composite: ticks all children every frame (move, fire, invuln run concurrently) |
+| `MoveAction` | plain C# (BTNode) | Reads `InputManager.MoveAxis`, clamps and sets `transform.position` each tick |
+| `FireAction` | plain C# (BTNode) | Delegates to `Weapon.HandleFire` each tick |
+| `InvulnOverlayAction` | plain C# (BTNode) | Manages invuln flag, counts down unscaled timer, drives sprite blink; restores alpha on expiry |
 | `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot; individual clamped-mutation methods — no PowerUpData coupling |
 | `Weapon` / `BasicWeapon` | abstract / concrete MonoBehaviour | Fire logic, projectile pool, spread pattern (unified loop — MultiShot=1 fires at angle 0) |
 
@@ -50,13 +51,25 @@ This is the thing the player controls. Per D1/N1 the ship moves on the X axis on
 9. **Timers**: i-frame and any power-up-duration timers use `unscaledDeltaTime`/`WaitForSecondsRealtime` (hard rule). The fire-cooldown timer may use scaled time so firing pauses with the game.
 10. `PlayerShipContext` uses no `Find`/`FindObjectOfType`; `InputManager` is resolved via `GameManager.Instance.Input`; `PowerUpSystem` is assigned in the Inspector.
 
-### States and Transitions
+### Behavior Tree
 
-| State | Entry Condition | Exit Condition | Behavior |
+`PlayerShipContext` owns a `BTParallel` root that ticks three leaf nodes every frame (when `GameState.Running`):
+
+```
+BTParallel (root)
+├── MoveAction          — reads MoveAxis, clamps position.x within stat bounds
+├── FireAction          — calls Weapon.HandleFire with FireHeld intent + stat
+└── InvulnOverlayAction — if IsInvulnerable: decrement InvulnTimer (unscaled), blink sprite
+                          on expiry or when not invuln: set sprite alpha to 1
+```
+
+Move and fire are **always concurrent** — invuln state never suspends them. `InvulnOverlayAction` is orthogonal: it only drives the blink overlay and timer. The `IsInvulnerable` flag on Context gates `TakeDamage` directly (no type-check against a state class).
+
+| BT state | Entry | Exit | Behavior |
 |---|---|---|---|
-| `Active` | Run started / after i-frames expire | Vulnerable hit taken | Reads input, moves, fires, can take damage |
-| `Invulnerable` | A vulnerable hit was taken | `InvulnDuration` elapsed (unscaled) | Reads input, moves, fires; ignores all damage; visibly flashing |
-| `Disabled` | Run ended (lives = 0) or not in gameplay | Run (re)starts | No input read, no fire, no collision response |
+| Normal (flag off) | Run started / invuln window expires | Vulnerable hit → `TakeDamage` sets flag | Move + fire; `InvulnOverlayAction` holds alpha at 1 |
+| Invulnerable (flag on) | `TakeDamage` sets `IsInvulnerable = true`, `InvulnTimer = invulnDuration` | `InvulnTimer ≤ 0` (unscaled) | Move + fire unchanged; `InvulnOverlayAction` blinks sprite |
+| Disabled | `GameState ≠ Running` | `GameState = Running` | `Update()` guard fires; BT does not tick; no input, no fire |
 
 ### Interactions with Other Systems
 
