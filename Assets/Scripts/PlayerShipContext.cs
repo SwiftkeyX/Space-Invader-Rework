@@ -2,10 +2,9 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Lifecycle coordinator for the player ship. Thin Update() delegates to
-/// PlayerShipState (i-frames/conditions), PlayerShipStat (numeric values), and
-/// Weapon (fire logic). Implements IDamageable so Projectile can hit it without
-/// knowing the concrete type. See PlayerShip.md GDD.
+/// Lifecycle coordinator for the player ship. Update() delegates entirely to the active
+/// BasePlayerShipState via _state.Tick(dt). Implements IDamageable so Projectile can hit it
+/// without knowing the concrete type. See PlayerShip.md GDD.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class PlayerShipContext : MonoBehaviour, IDamageable
@@ -42,8 +41,13 @@ public class PlayerShipContext : MonoBehaviour, IDamageable
 
     public Team Team => Team.Player;
 
+    // Surface exposed to state classes.
+    public PlayerShipStat Stat => _stat;
+    public Weapon Weapon => weapon;
+    public ActivePlayerState NormalState { get; private set; }
+
     private PlayerShipStat _stat;
-    private PlayerShipState _state;
+    private BasePlayerShipState _state;
     private SpriteRenderer _sprite;
 
     private void Awake()
@@ -53,7 +57,8 @@ public class PlayerShipContext : MonoBehaviour, IDamageable
             moveSpeed, leftBound, rightBound,
             baseFireCooldown, projectileSpeed, projectileDamage, projectileLifetime,
             minFireCooldown, maxMoveSpeed, maxProjectileSpeed, maxMultiShot, maxProjectileDamage);
-        _state = new PlayerShipState(invulnDuration);
+        NormalState = new ActivePlayerState(this);
+        _state = NormalState;
     }
 
     private void Start()
@@ -75,36 +80,39 @@ public class PlayerShipContext : MonoBehaviour, IDamageable
     private void Update()
     {
         if (GameManager.Instance == null || GameManager.Instance.State != GameState.Running) return;
-
-        var input = GameManager.Instance.Input;
-        Move(input);
-        weapon?.HandleFire(input != null && input.FireHeld, _stat, Time.deltaTime);
-        _state.Tick(Time.unscaledDeltaTime);
-        FlashIfInvuln();
+        _state.Tick(Time.deltaTime);
     }
 
-    private void Move(InputManager input)
+    /// <summary>Transitions to a new behavioural state. Called by state classes.</summary>
+    public void TransitionTo(BasePlayerShipState next)
+    {
+        _state = next;
+        _state.OnEnter();
+    }
+
+    /// <summary>Moves the ship horizontally within bounds. Called by state classes.</summary>
+    public void PerformMove(InputManager input, float dt)
     {
         float axis = input != null ? input.MoveAxis : 0f;
         var pos = transform.position;
-        pos.x = Mathf.Clamp(pos.x + axis * _stat.MoveSpeed * Time.deltaTime, _stat.LeftBound, _stat.RightBound);
+        pos.x = Mathf.Clamp(pos.x + axis * _stat.MoveSpeed * dt, _stat.LeftBound, _stat.RightBound);
         transform.position = pos;
     }
 
-    private void FlashIfInvuln()
+    /// <summary>Sets sprite transparency. Called by state classes for blink feedback.</summary>
+    public void SetSpriteAlpha(float alpha)
     {
-        if (_sprite == null) return;
-        _sprite.color = _state.IsInvulnerable
-            ? new Color(1f, 1f, 1f, Mathf.PingPong(Time.unscaledTime * 8f, 1f) * 0.7f + 0.3f)
-            : Color.white;
+        if (_sprite != null)
+            _sprite.color = new Color(1f, 1f, 1f, alpha);
     }
 
-    /// <summary>Called by Projectile via IDamageable. Any hit costs one life unless blocked by i-frames (D2).</summary>
+    /// <summary>Called by Projectile via IDamageable. Blocked by InvulnPlayerState; otherwise costs a life and starts invuln.</summary>
     public void TakeDamage(int damage)
     {
-        if (_state.TakeHit()) return;
+        if (_state is InvulnPlayerState) return;
         OnPlayerHit?.Invoke();
         OnPlayerDeath?.Invoke();
+        TransitionTo(new InvulnPlayerState(this, invulnDuration));
     }
 
     private void ApplyPowerUp(PowerUpData data)
