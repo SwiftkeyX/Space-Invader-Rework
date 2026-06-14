@@ -365,6 +365,64 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &770664838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 770664840}
+  - component: {fileID: 770664839}
+  m_Layer: 0
+  m_Name: JuiceManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &770664839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 770664838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 556f3e3d53e7ea2478a9c45609c6168c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuiceManager
+  killShakeIntensity: 0.08
+  killShakeDuration: 0.12
+  hitShakeIntensity: 0.3
+  hitShakeDuration: 0.25
+  clearShakeIntensity: 0.5
+  clearShakeDuration: 0.4
+  hitStopDuration: 0.08
+  killBurstPoolSize: 12
+  hitBurstPoolSize: 6
+  clearBurstPoolSize: 3
+  killBurstPrefab: {fileID: 5389157224985958011, guid: d7c09328d6a4ea54d90ca2e6bfe5892c, type: 3}
+  hitBurstPrefab: {fileID: 2552038155562281914, guid: c175aad047ed3b1418b834159454dbaf, type: 3}
+  clearBurstPrefab: {fileID: 8368960428550144237, guid: d83ae8023c810384c8ffea9338130153, type: 3}
+  sceneLoader: {fileID: 1413570203}
+--- !u!4 &770664840
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 770664838}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1052681066
 GameObject:
   m_ObjectHideFlags: 0
@@ -468,3 +526,4 @@ SceneRoots:
   - {fileID: 1413570204}
   - {fileID: 561519358}
   - {fileID: 466586281}
+  - {fileID: 770664840}
