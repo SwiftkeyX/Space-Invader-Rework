@@ -7,7 +7,7 @@ using UnityEngine;
 /// juice react. Does not move itself (EnemyFormation moves it) or fire itself
 /// (EnemyFireController). See Enemy.md GDD.
 /// </summary>
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     /// <summary>Broadcast for any-enemy-killed reactions (score, audio, juice). Payload: points, world position.</summary>
     public static event Action<int, Vector3> OnEnemyKilled;
@@ -20,6 +20,7 @@ public class Enemy : MonoBehaviour
     private bool _alive;
 
     public bool IsAlive => _alive;
+    public Team Team => Team.Enemy;
 
     /// <summary>Configure on spawn from the level's row config.</summary>
     public void Spawn(int health, int points)
@@ -29,11 +30,11 @@ public class Enemy : MonoBehaviour
         _alive = true;
     }
 
-    /// <summary>Called directly by a player projectile on collision.</summary>
-    public void TakeDamage(int amount)
+    /// <summary>Called via IDamageable by a player projectile on collision.</summary>
+    public void TakeDamage(int damage)
     {
         if (!_alive) return;
-        _health -= amount;
+        _health -= damage;
         if (_health <= 0) Die();
     }
 
