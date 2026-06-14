@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
     private Label _livesLabel;
     private Label _levelLabel;
     private Label _scoreLabel;
+    private Label _levelBanner;
 
     private VisualElement _pickScreen;
     private VisualElement _cardsContainer;
@@ -34,6 +35,9 @@ public class UIManager : MonoBehaviour
     private PowerUpSystem _powerUpSystem;
     private bool _bound;
     private bool _restartPending;
+
+    // Juice: track previous lives to detect decrease
+    private int _prevLives = -1;
 
     private void Awake()
     {
@@ -79,8 +83,9 @@ public class UIManager : MonoBehaviour
         _hud        = root.Q("hud");
         _livesLabel = root.Q<Label>("lives-label");
 
-        _levelLabel = root.Q<Label>("level-label");
-        _scoreLabel = root.Q<Label>("score-label");
+        _levelLabel  = root.Q<Label>("level-label");
+        _scoreLabel  = root.Q<Label>("score-label");
+        _levelBanner = root.Q<Label>("level-banner");
 
         _pickScreen     = root.Q("pick-screen");
         _cardsContainer = root.Q("cards-container");
@@ -97,6 +102,10 @@ public class UIManager : MonoBehaviour
         SetPanel(_hud, true);
         SetPanel(_pickScreen, false);
         SetPanel(_endScreen, false);
+
+        // Banner starts hidden
+        if (_levelBanner != null)
+            _levelBanner.style.display = DisplayStyle.None;
     }
 
     // -------------------------------------------------------------------------
@@ -160,9 +169,39 @@ public class UIManager : MonoBehaviour
 
     private void HandleRunStarted()   { Time.timeScale = 1f; ShowHUD(); }
     private void HandleRunEnded(GameState result) => ShowEndScreen(result, _scoreSystem != null ? _scoreSystem.Score : 0);
-    private void HandleLivesChanged(int lives)   => SetText(_livesLabel, LivesString(lives));
-    private void HandleLevelChanged(int level)   => SetText(_levelLabel, $"LEVEL {level}");
-    private void HandleScoreChanged(int score)   => SetText(_scoreLabel, score.ToString("N0"));
+
+    private void HandleLivesChanged(int lives)
+    {
+        SetText(_livesLabel, LivesString(lives));
+
+        // Juice: flash red when lives decrease
+        if (_bound && _livesLabel != null && _prevLives > 0 && lives < _prevLives)
+            StartCoroutine(FlashElement(_livesLabel, new Color(1f, 0.2f, 0.2f), 0.3f));
+
+        _prevLives = lives;
+    }
+
+    private void HandleLevelChanged(int level)
+    {
+        SetText(_levelLabel, $"LEVEL {level}");
+
+        // Juice: show level banner briefly during gameplay
+        if (_bound && _levelBanner != null &&
+            GameManager.Instance != null && GameManager.Instance.State == GameState.Running)
+        {
+            _levelBanner.text = $"LEVEL {level}";
+            StartCoroutine(ShowBanner(_levelBanner, 1.5f));
+        }
+    }
+
+    private void HandleScoreChanged(int score)
+    {
+        SetText(_scoreLabel, score.ToString("N0"));
+
+        // Juice: flash gold when score increases
+        if (_bound && _scoreLabel != null)
+            StartCoroutine(FlashElement(_scoreLabel, new Color(1f, 0.9f, 0.2f), 0.15f));
+    }
 
     private void HandlePowerUpOffered(PowerUpData[] offer)
     {
@@ -179,6 +218,26 @@ public class UIManager : MonoBehaviour
         if (_restartPending) return;
         _restartPending = true;
         OnRestartRequested?.Invoke(); // GameManager subscribes and calls RequestRestart
+    }
+
+    // -------------------------------------------------------------------------
+    // Juice animations
+    // -------------------------------------------------------------------------
+
+    /// <summary>Briefly tints a VisualElement to flashColor then restores USS default.</summary>
+    private IEnumerator FlashElement(VisualElement el, Color flashColor, float duration)
+    {
+        el.style.color = new StyleColor(flashColor);
+        yield return new WaitForSecondsRealtime(duration);
+        el.style.color = StyleKeyword.Null; // restore to USS-defined value
+    }
+
+    /// <summary>Shows the level banner for displayDuration seconds then hides it.</summary>
+    private IEnumerator ShowBanner(Label banner, float displayDuration)
+    {
+        banner.style.display = DisplayStyle.Flex;
+        yield return new WaitForSecondsRealtime(displayDuration);
+        banner.style.display = DisplayStyle.None;
     }
 
     // -------------------------------------------------------------------------
