@@ -2,9 +2,6 @@
 
 ## Open
 
-*(none)*
-
----
 
 ## Closed
 

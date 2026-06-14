@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
 
     private void HandleSceneLoaded(string label)
     {
-        if (label != "HUD") return;
+        if (label != "Gameplay") return;
         _uiManager = FindFirstObjectByType<UIManager>();
         if (_uiManager != null)
             _uiManager.OnRestartRequested += RequestRestart;

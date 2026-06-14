@@ -14,7 +14,7 @@ Every skill folder under `.claude/skills/<name>/` follows a naming convention so
 | Production-exit pass | `<noun>-pass` | `architecture-pass` | User (handed off by `production-task`) |
 | Beta steps | `<x>-pass` (+ `ship` concept) | `juice-pass`, `tune-pass`, `performance-pass`, `release-pass` | Internal (via `beta-task`) |
 | Workers | `verb-noun` | `read-gdd`, `write-gdd`, `edit-unity`, `fix-bug`, `log-bug`, `fix-all-bugs` | Internal (via `code` / `debug` / `fix-bug`) |
-| Utilities | `verb-noun` | `explain-workflow`, `check-pipeline-stage`, `read-architecture`, `sync-template`, `setup-gh-bot`, `clean-docs` | User |
+| Utilities | `verb-noun` | `explain-workflow`, `check-pipeline-stage`, `read-architecture`, `sync-template`, `setup-gh-bot`, `clean-docs`, `check-consistency-gdd-and-code` _(named exception to the 3-segment rule — user decision)_ | User |
 | Automation | `verb` / `verb-noun` | `regress`, `watch-project` | Internal / scheduled |
 
 ## Rules

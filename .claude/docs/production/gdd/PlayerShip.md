@@ -1,12 +1,21 @@
 # PlayerShip
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-13
+> **Last Updated**: 2026-06-14
 > **Implements Pillar**: Chaotic + Fun — the player's instrument for reacting to bullet-hell density; tight, fair, survivable.
 
 ## Summary
 
-PlayerShip is the player's avatar: a ship locked to horizontal movement along the bottom strip that fires upward, survives via 3 lives with brief invulnerability frames after each hit, and accepts run-scoped weapon/stat modifications from power-ups. It reads intent from InputManager, spawns player projectiles, and announces hits and deaths so GameManager (lives) and feedback systems react.
+The player-ship system is split across four classes (architecture pass, 2026-06-14):
+
+| Class | Type | Responsibility |
+|---|---|---|
+| `PlayerShipContext` | MonoBehaviour | Thin coordinator: lifecycle, event surface, wires subsystems |
+| `PlayerShipState` | plain C# | Runtime conditions: i-frame timer (unscaled), invuln flag |
+| `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot + power-up `Apply()` |
+| `Weapon` / `BasicWeapon` | abstract / concrete MonoBehaviour | Fire logic, projectile pool, spread patterns |
+
+`PlayerShipContext` implements `IDamageable` so `Projectile` can call `TakeDamage()` without knowing the concrete type. `PowerUpSystem` is wired via Inspector (no `FindFirstObjectByType`).
 
 > **Quick reference** — Layer: `Core` · Priority: `MVP` · Key deps: `InputManager`, `Projectile`, `GameManager`, `PowerUpSystem`
 
@@ -30,14 +39,14 @@ This is the thing the player controls. Per D1/N1 the ship moves on the X axis on
 2. **Bounds**: the ship is clamped to a horizontal range (left/right screen edges, minus a margin). It can never leave the bottom strip vertically because it has no vertical movement.
 3. **Firing**: when fire intent occurs (`InputManager.OnFirePressed` for tap, or `FireHeld` for held — see Open Questions), and the fire cooldown has elapsed, PlayerShip spawns a player `Projectile` at its muzzle, travelling straight up. Fire rate is gated by `FireCooldown`.
 4. **Projectile spawning**: player bullets are acquired from a pool (no `Instantiate` per shot — `best-practices.md` zero-GC). PlayerShip sets the bullet's direction (up), speed, and "player" team tag, then releases it to the pool on expiry/collision (Projectile owns its own lifetime).
-5. **Taking a hit**: a player `Projectile`/enemy bullet collision calls `PlayerShip.TakeHit()` (direct method, the only downward call per architecture). On `TakeHit`:
+5. **Taking a hit**: an enemy `Projectile` collision calls `PlayerShipContext.TakeDamage(damage)` via the `IDamageable` interface. On `TakeDamage`:
    - If currently **invulnerable** (i-frames active): the hit deals **zero** damage and costs **no life** (I-frame invariant, D2/`best-practices.md`). Return immediately.
    - If **vulnerable**: fire `OnPlayerHit` (feedback hook — flash/SFX/shake), fire `OnPlayerDeath` (state hook — GameManager decrements one life), then start the i-frame window.
 6. **I-frames (D2)**: after a vulnerable hit, the ship is invulnerable for `InvulnDuration`. The i-frame timer uses **`Time.unscaledDeltaTime`** so it does not stall during hit-stop (`Time.timeScale = 0`) — hard rule from `best-practices.md`. During i-frames the ship blinks/flashes for readability and ignores all incoming damage.
 7. **Death vs run-end**: PlayerShip does not track lives. It reports each life-losing hit via `OnPlayerDeath`; GameManager owns the lives count and ends the run when lives reach 0. After a non-final hit, the ship continues (still controllable, now flashing during i-frames). *(Whether the ship visually "respawns"/recenters on hit vs stays in place — see Open Questions.)*
 8. **Power-ups (D3/D4, run-scoped)**: PlayerShip subscribes to `PowerUpSystem.OnPowerUpChosen` and applies the chosen modifier to its weapon/stats (e.g. fire rate, multi-shot, projectile speed). Effects last the rest of the run and reset on a new run. The exact power-up catalog is defined in `PowerUpSystem.md` (Tier 3) — PlayerShip exposes the stat surface those effects mutate.
 9. **Timers**: i-frame and any power-up-duration timers use `unscaledDeltaTime`/`WaitForSecondsRealtime` (hard rule). The fire-cooldown timer may use scaled time so firing pauses with the game.
-10. PlayerShip uses no `Find`/`FindObjectOfType`; InputManager and pool/prefab references are assigned in the Inspector or resolved per the architecture contract.
+10. `PlayerShipContext` uses no `Find`/`FindObjectOfType`; `InputManager` is resolved via `GameManager.Instance.Input`; `PowerUpSystem` is assigned in the Inspector.
 
 ### States and Transitions
 
