@@ -1,7 +1,7 @@
 # PlayerShip
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-14 (BT migration: BTParallel root, MoveAction/FireAction/InvulnOverlayAction leaf nodes, Context as blackboard)
+> **Last Updated**: 2026-06-14 (PlayerShipStat → MonoBehaviour + IDamageable; TakeDamage + events moved out of Context)
 > **Implements Pillar**: Chaotic + Fun — the player's instrument for reacting to bullet-hell density; tight, fair, survivable.
 
 ## Summary
@@ -10,15 +10,15 @@ The player-ship system uses a Behavior Tree (BT migration, 2026-06-14):
 
 | Class | Type | Responsibility |
 |---|---|---|
-| `PlayerShipContext` | MonoBehaviour | Blackboard + lifecycle: exposes data to BT nodes; `Update()` is guard + `_btRoot.Tick(dt)` only |
+| `PlayerShipContext` | MonoBehaviour | Thin BT coordinator: owns BT root, wires events, `Update()` is guard + `_btRoot.Tick(dt)` only |
+| `PlayerShipStat` | MonoBehaviour · IDamageable | Numeric stats + damage surface: speed, cooldown, damage, multiShot; `TakeDamage()`, invuln flag + timer, `OnPlayerHit`/`OnPlayerDeath` events |
 | `BTParallel` | plain C# | BT composite: ticks all children every frame (move, fire, invuln run concurrently) |
 | `MoveAction` | plain C# (BTNode) | Reads `InputManager.MoveAxis`, clamps and sets `transform.position` each tick |
 | `FireAction` | plain C# (BTNode) | Delegates to `Weapon.HandleFire` each tick |
-| `InvulnOverlayAction` | plain C# (BTNode) | Manages invuln flag, counts down unscaled timer, drives sprite blink; restores alpha on expiry |
-| `PlayerShipStat` | plain C# | Modifiable numeric stats: speed, cooldown, damage, multiShot; individual clamped-mutation methods — no PowerUpData coupling |
+| `InvulnOverlayAction` | plain C# (BTNode) | Reads `PlayerShipStat.IsInvulnerable`; counts down unscaled timer; drives sprite blink; restores alpha on expiry |
 | `Weapon` / `BasicWeapon` | abstract / concrete MonoBehaviour | Fire logic, projectile pool, spread pattern (unified loop — MultiShot=1 fires at angle 0) |
 
-`PlayerShipContext` implements `IDamageable` so `Projectile` can call `TakeDamage()` without knowing the concrete type. `PowerUpSystem` is wired via Inspector (no `FindFirstObjectByType`).
+`PlayerShipStat` implements `IDamageable` so `Projectile` can call `TakeDamage()` without knowing the concrete type. `PlayerShipContext` coordinates the BT and wires `PowerUpSystem` via Inspector (no `FindFirstObjectByType`).
 
 > **Quick reference** — Layer: `Core` · Priority: `MVP` · Key deps: `InputManager`, `Projectile`, `GameManager`, `PowerUpSystem`
 

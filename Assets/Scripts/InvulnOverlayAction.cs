@@ -10,16 +10,16 @@ public class InvulnOverlayAction : BTNode
 
     public override BTStatus Tick(float dt)
     {
-        if (!_ctx.IsInvulnerable)
+        if (!_ctx.Stat.IsInvulnerable)
         {
             SetAlpha(1f);
             return BTStatus.Success;
         }
 
-        _ctx.InvulnTimer -= Time.unscaledDeltaTime;
-        if (_ctx.InvulnTimer <= 0f)
+        _ctx.Stat.InvulnTimer -= Time.unscaledDeltaTime;
+        if (_ctx.Stat.InvulnTimer <= 0f)
         {
-            _ctx.IsInvulnerable = false;
+            _ctx.Stat.IsInvulnerable = false;
             SetAlpha(1f);
             return BTStatus.Success;
         }
