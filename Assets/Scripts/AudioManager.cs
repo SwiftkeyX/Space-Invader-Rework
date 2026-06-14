@@ -127,8 +127,8 @@ public class AudioManager : MonoBehaviour
         }
         if (_playerShip != null)
         {
-            _playerShip.OnPlayerHit   += HandlePlayerHit;
-            _playerShip.OnPlayerDeath += HandlePlayerDeath;
+            _playerShip.Stat.OnPlayerHit   += HandlePlayerHit;
+            _playerShip.Stat.OnPlayerDeath += HandlePlayerDeath;
         }
         if (_powerUpSystem != null)
             _powerUpSystem.OnPowerUpChosen += HandlePowerUpChosen;
@@ -144,8 +144,8 @@ public class AudioManager : MonoBehaviour
         }
         if (_playerShip != null)
         {
-            _playerShip.OnPlayerHit   -= HandlePlayerHit;
-            _playerShip.OnPlayerDeath -= HandlePlayerDeath;
+            _playerShip.Stat.OnPlayerHit   -= HandlePlayerHit;
+            _playerShip.Stat.OnPlayerDeath -= HandlePlayerDeath;
             _playerShip = null;
         }
         if (_powerUpSystem != null)

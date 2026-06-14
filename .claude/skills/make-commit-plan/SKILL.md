@@ -106,7 +106,11 @@ For each group, in order:
 
 1. **Compile check** — if the group contains any `.cs` files, run `check_compile_errors`. If errors exist, abort the entire sequence and report which errors must be fixed first.
 2. **Stage explicitly** — `git add <file1> <file2> ...` using exact file paths, never `git add .` or `git add -A`
-3. **Commit** — `git commit -m "message"` using a heredoc for multi-line messages
+3. **Commit** — always include the bot author flag:
+   ```
+   git commit --author="space-invader-rework-bot[bot] <4041458+space-invader-rework-bot[bot]@users.noreply.github.com>" -m "message"
+   ```
+   Use a heredoc for multi-line messages.
 4. **Confirm** — output: `✓ Committed: feat(ball): add velocity cap`
 
 ---
@@ -117,13 +121,32 @@ Run `git log --oneline -5` and display the output so the user can verify what la
 
 ---
 
+## Step 7.5 — Token guard (run before push)
+
+Before pushing, ensure the bot token is fresh:
+
+```
+python .claude/scripts/refresh-gh-token.py
+```
+
+Always run this — the token expires in ~1 hour and a stale token silently fails. Report: `✓ Bot token refreshed.`
+
+---
+
 ## Step 8 — Offer to push, then auto-open the PR
 
 The commits are on a feature branch (guaranteed by Step 0). Offer to push:
 
-> "Commits are on `<branch>`. Push to `origin`? (`yes` / `no`)"
+> "Commits are on `<branch>`. Push to `origin` as bot? (`yes` / `no`)"
 
-On `yes`: `git push -u origin <branch>`. Once the push succeeds, **automatically run `/open-pr`** — do not make the user run it as a separate step. Then hand off:
+On `yes` — push using the bot token via HTTPS:
+
+```bash
+BOT_TOKEN=$(cat .gh-token 2>/dev/null)
+git -c "http.https://github.com/.extraheader=Authorization: Basic $(printf 'x-access-token:%s' "$BOT_TOKEN" | base64 -w 0)" push -u origin <branch>
+```
+
+Once the push succeeds, **automatically run `/open-pr`** — do not make the user run it as a separate step. Then hand off:
 
 > "Pushed and PR opened. Review it on GitHub; when you're done, tell me and I'll run `/reconcile-gdd`."
 
