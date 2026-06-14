@@ -27,7 +27,7 @@ Step-skill: adds all juice elements — screen shake, particles, hit-stop, SFX, 
 
 ## Entry Condition
 
-Milestone 3 = [x]. `game-vision.md` and `technical-preferences.md` must exist.
+Milestone 2 = [x]. `game-vision.md` and `technical-preferences.md` must exist.
 
 ---
 

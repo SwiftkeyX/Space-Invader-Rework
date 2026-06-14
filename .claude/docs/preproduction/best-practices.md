@@ -74,30 +74,6 @@ These rules are **hard constraints**, not suggestions. They override the Unity 6
 
 **Why**: Project decision — UI Toolkit is the Unity 6 production-ready path and keeps UI markup/style separate from logic. The `ui-programmer` routing in `technical-preferences.md` reflects this.
 
-### Keep Update() thin — extract helpers
-
-**Rule**: No `Update()` method should exceed ~15 lines. Logic that belongs together (march step, edge check, fire handling, state tick) moves into private helpers; `Update()` is a readable dispatch list.
-
-**Why**: Long `Update()` methods mix multiple concerns in one scan path, making it hard to read, test, or extend any single concern. Enforced during the architecture pass (2026-06-14) after EnemyFormation and PlayerShip were refactored to this shape.
-
-**How to apply**: If `Update()` is growing, extract named helpers immediately (`MarchStep()`, `HandleFire()`, `FlashIfInvuln()`). Each helper handles one concern.
-
-### IDamageable for hittable objects
-
-**Rule**: Any object that can be hit by a `Projectile` implements `IDamageable` (`Team Team { get; }` + `void TakeDamage(int damage)`). `Projectile.OnTriggerEnter2D` calls `GetComponentInParent<IDamageable>()` and team-filters — never `GetComponentInParent<Enemy>()` or `GetComponentInParent<PlayerShipContext>()`.
-
-**Why**: The original if-else team check in Projectile was an Open/Closed violation — adding a third damageable type required editing Projectile. The interface eliminates that. Enforced during the architecture pass (2026-06-14).
-
-**How to apply**: Implement `IDamageable` on any new damageable entity. Never add a new branch to Projectile's collision handler.
-
-### SRP: MonoBehaviour coordinator + plain C# state objects
-
-**Rule**: A MonoBehaviour that owns significant state should be split into a thin **coordinator** (MonoBehaviour, lifecycle + wiring) and one or more **plain C# class** objects for state and stats (`PlayerShipState`, `PlayerShipStat`). Abstract MonoBehaviours (e.g. `Weapon`) handle sub-behaviours with their own Unity lifecycle.
-
-**Why**: Lumping movement + firing + i-frames + stat mutation into one MonoBehaviour violates SRP and makes every concern harder to extend. Plain C# objects are lighter than components and testable without a scene. Enforced during the architecture pass (2026-06-14) when `PlayerShip.cs` was split into `PlayerShipContext`, `PlayerShipState`, `PlayerShipStat`, and `Weapon` / `BasicWeapon`.
-
-**How to apply**: When a MonoBehaviour starts accumulating unrelated fields, extract them into a plain C# class and instantiate it in the MonoBehaviour's `Awake()`.
-
 ---
 
 ## Unity 6 LTS — Current Patterns
