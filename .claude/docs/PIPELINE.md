@@ -52,7 +52,7 @@
 
 - [x] 🧪 Test Gate 3 — Full content playthrough: score, HUD, power-ups, audio function across a level, console clean
 - [x] Milestone 3 — all features in, content complete
-- [ ] 🏛️ Architecture pass — refactor code to match GDDs via the PR-review loop until a technical-director audit is clean (or ditch the game if the idea didn't pan out)
+- [x] 🏛️ Architecture pass — refactor code to match GDDs via the PR-review loop until a technical-director audit is clean (or ditch the game if the idea didn't pan out)
 
 > Note: JuiceManager is reserved here but implemented in Phase 3 (per D6 / systems-design.md).
 > The Architecture pass is the Phase 2 → Phase 3 bridge — run `/architecture-pass`. Phase 3 is locked until it is `[x]`.
