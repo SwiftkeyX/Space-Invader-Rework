@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c99b238d11695f947aabc473b04576a8, type: 3}
+  m_Name: swift
+  m_EditorClassIdentifier: Assembly-CSharp::PowerUpData
+  id: swift
+  displayName: Thrusters
+  description: +2 move speed
+  effect: 3
+  magnitude: 2
