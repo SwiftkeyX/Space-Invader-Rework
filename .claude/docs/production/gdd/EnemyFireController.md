@@ -1,7 +1,7 @@
 # EnemyFireController
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-13
+> **Last Updated**: 2026-06-14
 > **Implements Pillar**: Chaotic — the escalating bullet-hell density that crosses into "controlled overwhelm" by level 4.
 
 ## Summary
@@ -75,6 +75,8 @@ shotsPerSecond ≈ ActiveShooters / FireInterval   (+ burst multiplier)
 | `FireInterval` | float | ~1.5s (L1) → ~0.4s (L6) | `LevelData` | Seconds between fire ticks |
 | `burstCount` | int | 1 (L1) → N (L3+) | `LevelData` | Shots per burst |
 | `bulletSpeedMult` | float | 1.0× (L1) → 1.8× (L6) | `LevelData` | Enemy bullet speed scale |
+| `enemyBulletLifetime` | float | 5.0s (default) | `LevelData` | Seconds before bullet auto-despawns (pool release) |
+| `enemyMuzzleOffset` | float | 0.5 units (default) | `LevelData` | Distance below shooter transform that bullets spawn |
 
 **Expected output range**: sparse single shots → dense overlapping streams across L1→L6.
 **Edge cases**: clamp `ActiveShooters` to living enemy count; if no enemies alive, fire nothing.
