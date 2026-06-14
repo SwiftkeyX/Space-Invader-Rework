@@ -18,9 +18,21 @@ Run `git branch --show-current`. If it is `main`, stop:
 
 ---
 
+**Step 1.5 — Token guard**
+
+Refresh the bot token before any `gh` call:
+
+```
+python .claude/scripts/refresh-gh-token.py
+```
+
+Report: `✓ Bot token refreshed.`
+
+---
+
 **Step 2 — Duplicate PR check**
 
-Run `gh pr list --head <branch> --state open --json number`. If a PR already exists, stop:
+Run `GH_TOKEN=$(cat .gh-token 2>/dev/null) gh pr list --head <branch> --state open --json number`. If a PR already exists, stop:
 
 > "PR #<N> is already open for this branch. Review it on GitHub, then tell me when you're done."
 
@@ -76,4 +88,4 @@ PR is open and URL is printed. User has been told to review and report back.
 - Never open a PR on `main`
 - Never open a duplicate PR
 - Never push — push belongs to `/make-commit-plan`
-- Never merge — merge belongs to `/reconcile-gdd`
+- Never merge — merge is a human-only action done on GitHub
