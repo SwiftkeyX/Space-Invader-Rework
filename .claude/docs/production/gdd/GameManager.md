@@ -1,7 +1,7 @@
 # GameManager
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-13
+> **Last Updated**: 2026-06-14
 > **Implements Pillar**: Foundation for all pillars — owns the run lifecycle that the Explosive/Chaotic loop plays out inside.
 
 ## Summary
@@ -51,7 +51,7 @@ GameManager is invisible to the player, but it underwrites the "one more run" pu
 |---|---|
 | PlayerShip | Listens to `PlayerShip.OnPlayerDeath` → decrements lives. Data in: death event. No data back (PlayerShip reads nothing from GameManager). |
 | SceneLoader | Direct method call to request scene loads (start run, restart). The only scene-load path in the project. |
-| LevelManager | LevelManager subscribes to `OnLevelChanged` to know which level config to spawn. GameManager learns "level cleared" from LevelManager so it can advance the index. |
+| LevelManager | LevelManager subscribes to `OnLevelChanged` to know which level config to spawn. GameManager subscribes to `LevelManager.OnLevelCleared` (via `HandleLevelCleared(int _)` wired in `LevelManager.OnEnable`) to advance the level index or end the run at level 6. |
 | UIManager | Subscribes to `OnLivesChanged`, `OnLevelChanged`, `OnRunStarted`, `OnRunEnded` to render HUD and game-over/win screens. Fires `OnRestartRequested` back to GameManager. |
 | AudioManager | Subscribes to `OnRunStarted` / `OnRunEnded` for music/stinger cues. |
 
@@ -195,6 +195,6 @@ Not applicable — GameManager owns no animations. Lives/level readout animation
 
 | Question | Owner | Deadline | Resolution |
 |---|---|---|---|
-| Exact handshake for "level cleared → advance": does LevelManager call a GameManager method, or does GameManager subscribe to `LevelManager.OnLevelCleared`? architecture.md lists `LevelManager` firing `OnLevelCleared` but GameManager listening only to `PlayerShip.OnPlayerDeath`. | designer / Claude | Before LevelManager GDD (Tier 2) | Pending — resolve when designing LevelManager so the edge is declared in architecture.md before coding either. |
+| Exact handshake for "level cleared → advance": does LevelManager call a GameManager method, or does GameManager subscribe to `LevelManager.OnLevelCleared`? | designer / Claude | Before LevelManager GDD (Tier 2) | **Resolved (2026-06-14)**: `LevelManager.OnEnable` subscribes `OnLevelCleared += GameManager.Instance.HandleLevelCleared`. GameManager.HandleLevelCleared(int _) receives the level index and advances or ends the run. |
 | Who calls `StartRun()` first — MainMenu "Play" button (via UIManager) or an auto-start on GameLogic load? | designer | Before UIManager GDD (Tier 3) | Pending |
 | Should `GameConfig` be a ScriptableObject now, or are two Inspector ints on GameManager enough for v1? | Claude | Before implementation | Leaning: two Inspector ints for v1; promote to SO only if more globals appear. |

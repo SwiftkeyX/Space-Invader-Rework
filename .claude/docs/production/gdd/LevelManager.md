@@ -1,7 +1,7 @@
 # LevelManager
 
 > **Status**: Draft
-> **Last Updated**: 2026-06-13
+> **Last Updated**: 2026-06-14
 > **Implements Pillar**: Fun (pressure that builds) — drives the short, steep 6-level curve that defines a run.
 
 ## Summary
@@ -200,7 +200,7 @@ Not directly player-driven; the felt responsiveness is the immediacy of the clea
 
 | Question | Owner | Deadline | Resolution |
 |---|---|---|---|
-| **Architecture-contract flag**: the clear→advance handshake needs a `LevelManager.OnLevelCleared` → GameManager edge (GameManager must react to advance the index / win at L6). `architecture.md` has GameManager listening only to `PlayerShip.OnPlayerDeath`. **Add this edge to `architecture.md` before coding.** | designer / Claude | Before GameManager + LevelManager implementation | **Pending — same flag as GameManager GDD.** Leaning: GameManager subscribes to `LevelManager.OnLevelCleared`. |
+| **Architecture-contract flag**: the clear→advance handshake needs a `LevelManager.OnLevelCleared` → GameManager edge. | designer / Claude | Before GameManager + LevelManager implementation | **Resolved (2026-06-14)**: `LevelManager.OnEnable` wires `OnLevelCleared += GameManager.Instance.HandleLevelCleared`. `OnDisable` unwires it. Note: the user expressed preference for direct manager-to-manager calls here; the event approach was kept to satisfy the architecture contract (all inter-system comms via C# events, `best-practices.md`). |
 | Who owns the between-level sequencing (clear → offer → choose → next): LevelManager, PowerUpSystem, or GameManager? | designer / Claude | Before PowerUpSystem (Tier 3) | Leaning: LevelManager coordinates timing; PowerUpSystem owns the offer/choice; GameManager owns the index advance. Finalize with PowerUpSystem. |
 | Level 6 "mini-boss formation" — authored purely as a high-HP `LevelData` wave, or special-cased? | designer / Claude | Before implementation | Leaning: authored as a high-HP/HP-tier `LevelData` wave (no separate boss system; none exists in systems-design). |
 | Is there an inter-level transition delay/banner, or instant next-wave after power-up? | designer | Phase 3 | Pending — MVP can be near-instant; banner is polish. |
